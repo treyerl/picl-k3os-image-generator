@@ -159,6 +159,7 @@ dl_dep libudev1-arm64.deb https://launchpadlibrarian.net/444834685/libudev1_237-
 dl_dep libpcre3-arm64.deb https://launchpadlibrarian.net/355683636/libpcre3_8.39-9_arm64.deb
 dl_dep util-linux-arm64.deb https://launchpadlibrarian.net/438655410/util-linux_2.31.1-0.4ubuntu3.4_arm64.deb
 dl_dep rpi-firmware-nonfree-master.zip https://github.com/RPi-Distro/firmware-nonfree/archive/master.zip
+dl_dep nfs-common-arm64.deb http://launchpadlibrarian.net/354038660/nfs-common_1.3.4-2.1ubuntu5_arm64.deb
 
 ## Make the image (capacity in MB, not MiB)
 echo "== Making image and filesystems... =="

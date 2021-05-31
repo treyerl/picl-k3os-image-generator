@@ -7,6 +7,19 @@ This project can be used to generate images for k3os compatible with various arm
 - Orange Pi PC 2
 - (Other devices may be compatible as well. PRs welcome! Please file an issue if you need any help with porting.)
 
+## TL:DR;
+
+1. Edit `ENV` variables in `Dockerfile` to adjust Raspberry Pi Firmware version and k3os version.
+2. build docker image
+3. run `build-image.sh` inside docker image to generate `picl-k3os-{k3osversion}-{imagetype}.img`
+
+```
+docker build . -t picl-builder:latest
+docker run -e TARGET=raspberrypi -v ${PWD}:/app -v /dev:/dev --privileged picl-builder:latest
+```
+
+If you re-run it with different versions delete `k3os-rootfs-arm64.tar.gz` and `raspberrypi-firmware.tar.gz` from `deps` folder.
+
 ## Getting Started
 
 - First, make a list of devices you want to use in your k3s cluster, their hardware types and the MAC addresses of their eth0 interface. (To find the MAC, boot any supported OS, perhaps the one that comes on the included SD card if you have one, and `cat /sys/class/net/eth0/address`. Or, just continue with a dummy config and the initial boot will say "there is no config for MAC xx:xx:xx:xx:xx:xx", and then you know what to call it.)
@@ -66,8 +79,11 @@ docker build . -t picl-builder:latest
 
 Then, run the container using:
 
-```
+```bash
 docker run -e TARGET=all -v ${PWD}:/app -v /dev:/dev --privileged picl-builder:latest
+
+# only raspi
+docker run -e TARGET=raspberrypi -v ${PWD}:/app -v /dev:/dev --privileged picl-builder:latest
 ```
 
 The images will be written into your local directory once the container is done.
