@@ -69,6 +69,7 @@ assert_tool blkid
 assert_tool 7z
 assert_tool dd
 assert_tool jq
+assert_tool openssl
 
 ## Check if we are building a supported image
 IMAGE_TYPE=$1
@@ -159,7 +160,10 @@ dl_dep libudev1-arm64.deb https://launchpadlibrarian.net/444834685/libudev1_237-
 dl_dep libpcre3-arm64.deb https://launchpadlibrarian.net/355683636/libpcre3_8.39-9_arm64.deb
 dl_dep util-linux-arm64.deb https://launchpadlibrarian.net/438655410/util-linux_2.31.1-0.4ubuntu3.4_arm64.deb
 dl_dep rpi-firmware-nonfree-master.zip https://github.com/RPi-Distro/firmware-nonfree/archive/master.zip
-dl_dep nfs-common-arm64.deb http://launchpadlibrarian.net/354038660/nfs-common_1.3.4-2.1ubuntu5_arm64.deb
+# use config file to activate NFS support:
+# k3os:
+#   modules:
+#    - nfs
 
 ## Make the image (capacity in MB, not MiB)
 echo "== Making image and filesystems... =="
@@ -259,6 +263,21 @@ sudo tar -xf deps/k3os-rootfs-arm64.tar.gz --strip 1 -C root
 sudo cp -R config root/k3os/system
 for filename in root/k3os/system/config/*.*; do [ "$filename" != "${filename,,}" ] && sudo mv "$filename" "${filename,,}" ; done 
 K3OS_VERSION=$(ls --indicator-style=none root/k3os/system/k3os | grep -v current | head -n1)
+
+# certificates
+sudo mkdir -p root/etc/rancher/k3s/certs/
+domain=k3s
+sudo openssl req \
+  -newkey rsa:4096 -nodes -sha256 -keyout root/etc/rancher/k3s/certs/"$domain".key \
+  -addext "subjectAltName = DNS:$domain" \
+  -subj "/C=CH/ST=Denial/L=Zurich/O=Vigilitech/CN=$domain" \
+  -x509 -days 1095 -out root/etc/rancher/k3s/certs/"$domain".crt
+sudo cp k3s/certs/rootCA.crt root/etc/rancher/k3s/certs
+sudo cp k3s/*.yaml root/etc/rancher/k3s/
+
+# auto deployed manifests
+sudo mkdir -p root/var/lib/rancher/k3s/server/manifests
+sudo cp manifests/*.yaml root/var/lib/rancher/k3s/server/manifests
 
 ## Install busybox
 unpack_deb() {

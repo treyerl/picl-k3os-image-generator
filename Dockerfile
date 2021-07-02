@@ -1,7 +1,7 @@
 FROM ubuntu:bionic
 
 RUN apt-get update && apt-get install -y \
-    wget parted dosfstools binutils p7zip-full \
+    wget parted dosfstools binutils p7zip-full openssl\
     sudo xz-utils jq u-boot-tools
 
 # see https://github.com/raspberrypi/firmware/releases
