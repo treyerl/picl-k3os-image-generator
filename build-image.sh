@@ -69,7 +69,6 @@ assert_tool blkid
 assert_tool 7z
 assert_tool dd
 assert_tool jq
-assert_tool openssl
 
 ## Check if we are building a supported image
 IMAGE_TYPE=$1
@@ -263,21 +262,6 @@ sudo tar -xf deps/k3os-rootfs-arm64.tar.gz --strip 1 -C root
 sudo cp -R config root/k3os/system
 for filename in root/k3os/system/config/*.*; do [ "$filename" != "${filename,,}" ] && sudo mv "$filename" "${filename,,}" ; done 
 K3OS_VERSION=$(ls --indicator-style=none root/k3os/system/k3os | grep -v current | head -n1)
-
-# certificates
-sudo mkdir -p root/etc/rancher/k3s/certs/
-domain=k3s
-sudo openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout root/etc/rancher/k3s/certs/"$domain".key \
-  -addext "subjectAltName = DNS:$domain" \
-  -subj "/C=CH/ST=Denial/L=Zurich/O=Vigilitech/CN=$domain" \
-  -x509 -days 1095 -out root/etc/rancher/k3s/certs/"$domain".crt
-sudo cp k3s/certs/rootCA.crt root/etc/rancher/k3s/certs
-sudo cp k3s/*.yaml root/etc/rancher/k3s/
-
-# auto deployed manifests
-sudo mkdir -p root/var/lib/rancher/k3s/server/manifests
-sudo cp manifests/*.yaml root/var/lib/rancher/k3s/server/manifests
 
 ## Install busybox
 unpack_deb() {
