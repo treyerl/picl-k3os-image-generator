@@ -11,15 +11,22 @@ This project can be used to generate images for k3os compatible with various arm
 
 1. Edit `ENV` variables in `Dockerfile` to adjust Raspberry Pi Firmware version and k3os version.
 2. build docker image
-3. add config files to config folder
+3. add config files (*.yaml) to config folder (symbolic links work as well; use absolute paths for VSCode to display them); config files must be named after the mac adress of the machine they are intended for.
+3. add manifest files (*.yaml) to manifests folder (symbolic links work as well)
 4. run `build-image.sh` inside docker image to generate `picl-k3os-{k3osversion}-{imagetype}.img`
 
 ```
 docker build . -t picl-builder:latest
-docker run -e TARGET=raspberrypi -v ${PWD}:/app -v /dev:/dev --privileged picl-builder:latest
+python3 prepare-config.sh && docker run -e TARGET=raspberrypi -v ${PWD}:/app -v /dev:/dev --privileged picl-builder:latest && rm -R .config
 ```
 
 If you re-run it with different versions delete `k3os-rootfs-arm64.tar.gz` and `raspberrypi-firmware.tar.gz` from `deps` folder.
+
+Restart k3s once k3os is up:
+
+```
+k3s-1 [~]# /etc/init.d/k3s-service restart
+```
 
 ## Getting Started
 

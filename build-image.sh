@@ -210,7 +210,7 @@ sudo e2label $LODEV_ROOT "root"
 
 ## Initialize root
 echo "== Initializing root... =="
-mkdir root
+mkdir -p root
 sudo mount $LODEV_ROOT root
 sudo mkdir root/bin root/boot root/dev root/etc root/home root/lib root/media
 sudo mkdir root/mnt root/opt root/proc root/root root/sbin root/sys
@@ -227,7 +227,7 @@ if [ "$IMAGE_TYPE" = "raspberrypi" ]; then
 	PITEMP="$(mktemp -d)"
 	sudo tar -xf deps/raspberrypi-firmware.tar.gz --strip 1 -C $PITEMP
 
-	mkdir boot
+	mkdir -p boot
 	sudo mount $LODEV_BOOT boot
 	sudo cp -R $PITEMP/boot/* boot
 	sudo cp -R $PITEMP/modules root/lib
@@ -256,14 +256,16 @@ EOF
 fi
 
 ## Install k3os, busybox and resize dependencies
-echo "== Installing... =="
+echo "== Installing k3os... =="
 sudo tar -xf deps/k3os-rootfs-arm64.tar.gz --strip 1 -C root
 # config.yaml will be created by init.resizefs based on MAC of eth0
-sudo cp -R config root/k3os/system
+echo "== Installing k3os configs... =="
+sudo cp -R .config root/k3os/system/config
 for filename in root/k3os/system/config/*.*; do [ "$filename" != "${filename,,}" ] && sudo mv "$filename" "${filename,,}" ; done 
 K3OS_VERSION=$(ls --indicator-style=none root/k3os/system/k3os | grep -v current | head -n1)
 
 ## Install busybox
+echo "== Installing busybox... =="
 unpack_deb() {
 	ar x deps/$1
 	sudo tar -xf data.tar.[gx]z -C $2

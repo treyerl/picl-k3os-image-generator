@@ -1,7 +1,8 @@
+.config
 config/*.yaml
-k3s/*.yaml
-k3s/certs/*.crt
+manifests/*.yaml
 picl-k3os-*.img
 deps
 boot
 root
+.DS_Store
